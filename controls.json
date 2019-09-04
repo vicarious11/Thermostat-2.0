@@ -1,0 +1,24 @@
+{
+  "actuator": {
+    "%torealvalue": "<<expression>>",
+    "curves": {
+      "increasing": {
+        "triggerExpr": "observation > setpoint + offset"
+      },
+      "decreasing": {
+        "triggerExpr": "setpoint - offset < observation < setpoint + offset"
+      }
+    }
+  },
+  "vfd": {
+    "%torealvalue": "<<expression>>",
+    "curves": {
+      "increasing": {
+        "triggerExpr": "observation > setpoint + offset"
+      },
+      "decreasing": {
+        "triggerExpr": "setpoint - offset < observation < setpoint + offset"
+      }
+    }
+  }
+}
