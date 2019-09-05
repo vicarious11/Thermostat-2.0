@@ -1,5 +1,5 @@
 class AB():
-	def __init__(self, controlSettings, appSettings ):
+	def __init__(self, controlSettings, appSettings):
 		self.maxModulation = controlSettings['maxModulation']
 		self.minModulation = controlSettings['minModulation']
 		self.modulationSpeed = controlSettings['modulationSpeed']
