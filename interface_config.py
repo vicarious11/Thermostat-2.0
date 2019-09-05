@@ -17,4 +17,4 @@ class ConfigInterface:
         return self.controlsDriver[controlName]["curves"]
 
     def get_observation(self, controlName):
-        pass
+        return self.frontendConfig["controls"]["observableformula"]

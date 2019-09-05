@@ -1,7 +1,6 @@
 from itertools import count
 import time
-import Observation
-import Curve
+from curve import Curve
 
 
 class Control:
@@ -51,7 +50,6 @@ class Control:
         sampleTimeInSecs = controlSettings["sampleTime"] * 60
         self.curves = self._init_curves(interface, controlSettings,
                                         appSettings)
-        self.observation = self._init_observation()
         initTime = int(time.time())
         self.timeSeriesForModulation = (initTime + (n + 1) * sampleTimeInSecs
                                         for n in count())
@@ -62,10 +60,6 @@ class Control:
             Curve(interface, curveConfig["triggerExpr"], controlSettings,
                   appSettings) for _, curveConfig in curvesConfig
         ]
-
-    def _init_observation(self):
-        observationConfig = self.configInterface.get_observation(self.name)
-        return Observation(observationConfig)
 
     def isItTimeToModulate(self, currentEpochTime):
         myTime = next(self.timeSeriesForModulation)

@@ -1,7 +1,12 @@
 class TransportInterface:
-    def __init__(self):
-        self.setpoint = 25
-        self.offset = 0.5
+    def get_setpoint(self):
+        pass
 
-    def send(self, message, destination):
-        print(f"{message} --->>> {destination}")
+    def get_offset(self):
+        pass
+
+    def get_observation(self, observationSource):
+        pass
+
+    def set_control(self, value, destination):
+        print("{value} is sent to {destination}".format(value, destination))

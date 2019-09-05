@@ -3,7 +3,6 @@ import ABController
 
 class Curve:
     def __init__(self, interface, triggerExpr, controlSettings, appSettings):
-        self.configInterface = interface["config"]
         self.triggerExpression = triggerExpr
         self.computingEngine = self._init_computing(controlSettings,
                                                     appSettings)

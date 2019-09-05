@@ -4,7 +4,6 @@
     "actuator": {
       "deviceid": "1233",
       "emergencyposition": "100",
-      "observableformula": "1267.temp",
       "modulationrange": "60,100",
       "modulationspeed": "5",
       "sampletime": "120"
@@ -12,13 +11,21 @@
     "vfd": {
       "deviceid": "444",
       "emergencyposition": "50",
-      "observableformula": "1277.temp",
       "modulationrange": "30,50",
       "modulationspeed": "3",
       "sampletime": "150"
     }
   },
-    "offsetrange": "0.25,0.75",
-    "timetoachieve" : "900",
-    "logictype" : "cooling"
+  "observe": {
+    "ahu": {
+      "stateExpression": "122.KW < 0"
+    },
+    "temperature": {
+      "formula": "1267.temp"
+    }
+  },
+  "offsetmin": "0.25",
+  "offsetmax": "0.75",
+  "timetoachieve": "10",
+  "logictype": "cooling"
 }
