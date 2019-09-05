@@ -3,17 +3,21 @@
   "controls": {
     "actuator": {
       "deviceid": "1233",
-      "emergencyposition": "100",
-      "modulationrange": "60,100",
-      "modulationspeed": "5",
-      "sampletime": "120"
+      "param": "changesetpoint",
+      "emergencyPosition": 100,
+      "minModulation": 60,
+      "maxModulation": 100,
+      "modulationSpeed": 2,
+      "sampleTime": 2
     },
     "vfd": {
       "deviceid": "444",
-      "emergencyposition": "50",
-      "modulationrange": "30,50",
-      "modulationspeed": "3",
-      "sampletime": "150"
+      "param": "changesetpoint",
+      "emergencyPosition": 80,
+      "minModulation": 60,
+      "maxModulation": 100,
+      "modulationSpeed": 3,
+      "sampleTime": 2
     }
   },
   "observe": {
@@ -24,8 +28,8 @@
       "formula": "1267.temp"
     }
   },
-  "offsetmin": "0.25",
-  "offsetmax": "0.75",
-  "timetoachieve": "10",
-  "logictype": "cooling"
+  "minOffset": 0.25,
+  "maxOffset": 0.75,
+  "timeToAchieve": 10,
+  "appMode": "cooling"
 }

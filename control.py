@@ -29,11 +29,11 @@ class Control:
                     "maxModulation" : 100,
                     "modulationSpeed" : 5,
                     "sampleTime" : 2,
-                    "controllerDirection" : 1
                 }
             appSettings (dict): settings at which thermostat is
                 running
                 {
+                    "controllerDirection" : 1,
                     "timeToAchieveSetpoint" : 15,
                     "degreeOfFreedom" : 5,
                     "setpoint" : 25,
@@ -58,7 +58,7 @@ class Control:
         curvesConfig = self.configInterface.get_curves(self.name)
         return [
             Curve(interface, curveConfig["triggerExpr"], controlSettings,
-                  appSettings) for _, curveConfig in curvesConfig
+                  appSettings) for _, curveConfig in curvesConfig.items()
         ]
 
     def isItTimeToModulate(self, currentEpochTime):
