@@ -77,5 +77,6 @@ class ABController():
     def user_command_resolution(self):
         resolution = ((self.maxModulation - self.minModulation) /
                       self.degreeOfFreedom)
-        commandResolution = resolution * self.modulationSpeed + self.minModulation
+        commandResolution = resolution * self.modulationSpeed + \
+            self.minModulation
         return commandResolution
