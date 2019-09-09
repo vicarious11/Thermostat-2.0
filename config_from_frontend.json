@@ -5,15 +5,17 @@
       "deviceid": "1233",
       "param": "changesetpoint",
       "emergencyPosition": 100,
+      "minimumPosition": 10,
       "minModulation": 60,
       "maxModulation": 100,
       "modulationSpeed": 2,
-      "sampleTime": 2
+      "sampleTime": 1
     },
     "vfd": {
       "deviceid": "444",
       "param": "changesetpoint",
       "emergencyPosition": 80,
+      "minimumPosition": 10,
       "minModulation": 60,
       "maxModulation": 100,
       "modulationSpeed": 3,

@@ -16,8 +16,8 @@ class ConfigInterface:
     def get_curves(self, controlName):
         return self.controlsDriver["controls"][controlName]["curves"]
 
-    def get_observation(self, controlName):
-        return self.frontendConfig["controls"]["observableformula"]
+    def get_observation(self):
+        return self.frontendConfig["observe"]
 
     def get_all_control_settings(self):
         controlSettings = {}
@@ -52,4 +52,6 @@ class ConfigInterface:
         appSettings["degreeOfFreedom"] = self.controlsDriver["dof"]
         appSettings["setpoint"] = None
         appSettings["offset"] = None
+        appSettings["maxOffset"] = self.frontendConfig["maxOffset"]
+        appSettings["minOffset"] = self.frontendConfig["minOffset"]
         return appSettings

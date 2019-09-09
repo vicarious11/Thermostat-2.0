@@ -6,9 +6,8 @@ class ABController():
         self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
         self.degreeOfFreedom = appSettings['degreeOfFreedom']
         self.setpoint = appSettings['setpoint']
-        self.controllerDirection = controlSettings['controllerDirection']
+        self.controllerDirection = appSettings['controllerDirection']
         self.sampleTime = controlSettings['sampleTime']
-
         self.lastInput = 0
         self.minimumError = 0.01
         self.toggleSpeed = 1
@@ -19,15 +18,15 @@ class ABController():
 
     def compute(self, Input):
         error = self.setpoint - Input
-        print("Error -->")
-        print(error)
+        # print("Error -->")
+        # print(error)
 
         if self.numberOfCommands == 0:
             return self.maxModulation
 
         if self.output == self.maxModulation:
             self.numberOfCommands = self.numberOfCommands - 1
-            print(self.numberOfCommands)
+            # print(self.numberOfCommands)
             return self.maxModulation
 
         if error == 0:
@@ -53,7 +52,7 @@ class ABController():
         self.capped_output()
         self.lastInput = Input
         self.numberOfCommands = self.numberOfCommands - 1
-        print(self.numberOfCommands)
+        # print(self.numberOfCommands)
         return self.output
 
     def mapping_function(self, headStart):

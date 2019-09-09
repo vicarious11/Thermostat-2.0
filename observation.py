@@ -1,5 +1,6 @@
 class Observation:
     def __init__(self, interface, observationSettings):
+        self.observationSettings = observationSettings
         self.transportInterface = interface["transport"]
         self.configInterface = interface["config"]
         self.temperatureSource = self.observationSettings["temperature"][

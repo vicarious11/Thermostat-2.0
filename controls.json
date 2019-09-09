@@ -5,10 +5,12 @@
       "%torealvalue": "<<expression>>",
       "curves": {
         "increasing": {
-          "triggerExpr": "observation > setpoint + offset"
+          "triggerExpr": "observation > (setpoint + offset)",
+          "endExpr": "False"
         },
         "decreasing": {
-          "triggerExpr": "setpoint - offset < observation < setpoint + offset"
+          "triggerExpr": "(setpoint - offset) < observation < (setpoint + offset)",
+          "endExpr": "observation < (setpoint-offset)"
         }
       }
     },
@@ -16,10 +18,12 @@
       "%torealvalue": "<<expression>>",
       "curves": {
         "increasing": {
-          "triggerExpr": "observation > setpoint + offset"
+          "triggerExpr": "observation > (setpoint + offset)",
+          "endExpr": "False"
         },
         "decreasing": {
-          "triggerExpr": "setpoint - offset < observation < setpoint + offset"
+          "triggerExpr": "(setpoint - offset) < observation < (setpoint + offset)",
+          "endExpr": "observation < (setpoint-offset)"
         }
       }
     }

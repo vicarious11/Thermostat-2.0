@@ -53,21 +53,27 @@ class Control:
         initTime = int(time.time())
         self.timeSeriesForModulation = (initTime + (n + 1) * sampleTimeInSecs
                                         for n in count())
+        self.myTime = next(self.timeSeriesForModulation)
 
     def _init_curves(self, interface, controlSettings, appSettings):
         curvesConfig = self.configInterface.get_curves(self.name)
         return [
-            Curve(interface, curveConfig["triggerExpr"], controlSettings,
-                  appSettings) for _, curveConfig in curvesConfig.items()
+            Curve(
+                interface, {
+                    "triggerExpr": curveConfig["triggerExpr"],
+                    "endExpr": curveConfig["endExpr"]
+                }, controlSettings, appSettings)
+            for _, curveConfig in curvesConfig.items()
         ]
 
     def isItTimeToModulate(self, currentEpochTime):
-        myTime = next(self.timeSeriesForModulation)
-        if abs(myTime - currentEpochTime) <= 2:
+        if abs(self.myTime - currentEpochTime) <= 2:
+            self.myTime = next(self.timeSeriesForModulation)
             return True
         return False
 
     def which_curve_right_now(self, observation, setpoint, offset):
+        # : curve expressions should not clash
         for curve in self.curves:
             if eval(curve.triggerExpression):
                 return curve
