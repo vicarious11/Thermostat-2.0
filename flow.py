@@ -51,7 +51,8 @@ class ApplicationFlow:
             callbackFunc=self.set_setpoint)
 
     def set_setpoint(self, topic=None, payload=None):
-        self.appSettings["offset"] = self.appSettings["maxOffset"]
+        if topic != None:
+            self.appSettings["offset"] = self.appSettings["maxOffset"]
         self.appSettings["setpoint"] = payload
         self.currentIterations = 0
         self.timerCrossed = 0
