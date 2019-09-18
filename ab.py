@@ -28,16 +28,16 @@ class ABController():
             self.numberOfCommands = self.numberOfCommands - 1
             # print(self.numberOfCommands)
             return self.maxModulation
-
-        if self.controllerDirection == -1:
-            self.headStart *= -1
-            self.correction *= -1
         if error == 0:
             self.headStart = self.iTerm / self.minimumError
             self.correction = self.mapping_function(self.headStart)
         else:
             self.headStart = self.iTerm / error
             self.correction = self.mapping_function(self.headStart)
+
+        if self.controllerDirection == -1:
+            self.headStart *= -1
+            self.correction *= -1
 
         self.iTerm += self.correction * error
 
