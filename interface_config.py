@@ -29,6 +29,8 @@ class ConfigInterface:
             controlSettings[name]["controlParamInfo"]["param"] = meta["param"]
             controlSettings[name]["meta"]["emergencyPosition"] = meta[
                 "emergencyPosition"]
+            controlSettings[name]["meta"]["minimumPosition"] = meta[
+                "minimumPosition"]
             controlSettings[name]["meta"]["minModulation"] = meta[
                 "minModulation"]
             controlSettings[name]["meta"]["maxModulation"] = meta[
@@ -36,6 +38,9 @@ class ConfigInterface:
             controlSettings[name]["meta"]["modulationSpeed"] = meta[
                 "modulationSpeed"]
             controlSettings[name]["meta"]["sampleTime"] = meta["sampleTime"]
+            controlSettings[name]["meta"][
+                "%torealvalue"] = self.controlsDriver["controls"][name][
+                    "%torealvalue"]
         return controlSettings
 
     def get_all_app_settings(self):
@@ -54,4 +59,8 @@ class ConfigInterface:
         appSettings["offset"] = None
         appSettings["maxOffset"] = self.frontendConfig["maxOffset"]
         appSettings["minOffset"] = self.frontendConfig["minOffset"]
+        appSettings["cycleStartExpression"] = self.controlsDriver[
+            "cycleStartExpr"]
+        appSettings["cycleEndExpression"] = self.controlsDriver[
+            "cycleEndExpr"]
         return appSettings

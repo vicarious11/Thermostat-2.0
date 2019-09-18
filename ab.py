@@ -6,12 +6,12 @@ class ABController():
         self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
         self.degreeOfFreedom = appSettings['degreeOfFreedom']
         self.setpoint = appSettings['setpoint']
-        self.controllerDirection = appSettings['controllerDirection']
+        self.controllerDirection = controlSettings['controllerDirection']
         self.sampleTime = controlSettings['sampleTime']
         self.lastInput = 0
         self.minimumError = 0.01
         self.toggleSpeed = 1
-
+        self.correction = 0
         self.numberOfCommands = self.compute_number_of_commands()
         self.iTerm = self.user_command_resolution()
         self.output = self.iTerm
@@ -29,16 +29,15 @@ class ABController():
             # print(self.numberOfCommands)
             return self.maxModulation
 
+        if self.controllerDirection == -1:
+            self.headStart *= -1
+            self.correction *= -1
         if error == 0:
             self.headStart = self.iTerm / self.minimumError
             self.correction = self.mapping_function(self.headStart)
         else:
             self.headStart = self.iTerm / error
             self.correction = self.mapping_function(self.headStart)
-
-        if self.controllerDirection == 0:
-            self.headStart *= -1
-            self.correction *= -1
 
         self.iTerm += self.correction * error
 

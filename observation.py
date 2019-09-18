@@ -8,6 +8,7 @@ class Observation:
         self.ahuObservationSource = self.observationSettings["ahu"][
             "stateExpression"]
         self.ahuStatus = None
+        self.previousAhuStatus = None
         self.temperature = None
 
     def get_verify_observation(self):
@@ -16,8 +17,13 @@ class Observation:
         self.temperature = self.transportInterface.get_observation(
             self.temperatureSource)
 
+        # : ahuStatus from false to true
+        if self.previousAhuStatus == False and self.ahuStatus == True:
+            observationCode = -2
+            temperature = None
+
         # : minimum position
-        if self.ahuStatus == False:
+        elif self.ahuStatus == False:
             observationCode = 0
             temperature = None
 
@@ -29,4 +35,5 @@ class Observation:
             observationCode = 1
             temperature = self.temperature
 
+        self.previousAhuStatus = self.ahuStatus
         return observationCode, temperature

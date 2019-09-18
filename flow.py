@@ -29,10 +29,17 @@ class ApplicationFlow:
         self.transportInterface = interface["transport"]
         self.callbackInterface = interface["callback"]
         self.appSettings = appSettings
-        self.appSettings["offset"] = appSettings["maxOffset"]
+        self.appSettings["offset"] = self.appSettings["maxOffset"]
         self.controlSettings = self.configInterface.get_all_control_settings()
         self.observationSettings = self.configInterface.get_observation()
         self.observation = Observation(interface, self.observationSettings)
+        self.cycleStartExpression = appSettings["cycleStartExpression"]
+        self.cycleEndExpression = appSettings["cycleEndExpression"]
+        self.cycle = 0
+        self.timerCrossed = 0
+        self.currentIterations = 0
+        self.maxIterations = int(
+            (appSettings["timeToAchieveSetpoint"] * 60) / 1)
         self.controls = [
             Control(self.interface, controlSetting["controlParamInfo"],
                     controlSetting["meta"], self.appSettings)
@@ -43,35 +50,115 @@ class ApplicationFlow:
             condition="topic == 'command/thermostat/setpoint'",
             callbackFunc=self.set_setpoint)
 
-    def set_setpoint(self, topic, payload):
+    def set_setpoint(self, topic=None, payload=None):
+        self.appSettings["offset"] = self.appSettings["maxOffset"]
         self.appSettings["setpoint"] = payload
+        self.currentIterations = 0
+        self.timerCrossed = 0
         print(" setpoint set ")
         for control in self.controls:
             for curve in control.curves:
                 curve.init_computing()
 
+    def automate_offset(self, curveName, temperature):
+        if (self.currentIterations >= self.maxIterations) and \
+           curveName == "increasing":
+            self.execute_controls("maximum")
+            self.transportInterface.send_alert("timetoachieve")
+            self.timerCrossed = 1
+        elif self.currentIterations >= self.maxIterations and \
+                curveName == "decreasing":
+            self.execute_controls("minimum")
+            observationDistanceFromSp = abs(temperature -
+                                            self.appSettings["setpoint"])
+            minOffsetDistanceFromSp = abs(self.appSettings["setpoint"] -
+                                          self.appSettings["minOffset"])
+            if observationDistanceFromSp > minOffsetDistanceFromSp:
+                self.appSettings["offset"] = observationDistanceFromSp
+            elif observationDistanceFromSp < minOffsetDistanceFromSp:
+                self.appSettings["offset"] = self.appSettings["minOffset"]
+            self.set_setpoint(payload=self.appSettings["setpoint"])
+            self.cycle = 0
+
+    def cycle_end(self, observation):
+        offset = self.appSettings["offset"]
+        setpoint = self.appSettings["setpoint"]
+        return eval(self.cycleEndExpression)
+
+    def cycle_start(self, observation):
+        offset = self.appSettings["offset"]
+        setpoint = self.appSettings["setpoint"]
+        return eval(self.cycleStartExpression)
+
+    def execute_controls(self, level):
+        for control in self.controls:
+            controlValuesAtDiffLevels = {
+                "minimum": control.minimumPosition,
+                "maximum": 100,
+                "emergency": control.emergency
+            }
+            output = controlValuesAtDiffLevels[level]
+            output = control.map_to_real_value(output)
+            self.transportInterface.set_control(round(output), control.name)
+
+    def handle_cycle_trigger(self, observationCode, observation):
+        if self.cycle == 1 and (observationCode == 1
+                                and self.cycle_end(observation)):
+            self.cycle = 0
+            self.execute_controls("minimum")
+        elif self.cycle == 0 and (observationCode == 1
+                                  and self.cycle_start(observation)):
+            self.cycle = 1
+            self.set_setpoint(payload=self.appSettings["setpoint"])
+
+    def progress_controls_timer(self, currentTime):
+        for control in self.controls:
+            control.progress_timer(currentTime)
+
+    def save_last_output_in_decreasing_curve(self, control, curve, output):
+        if curve.name == "increasing":
+            for curve in control.curves:
+                if curve.name == "decreasing":
+                    curve.computingEngine.iTerm = output
+
     def start_flow(self):
         while 1:
+            currentTime = int(time.time())
+            self.progress_controls_timer(currentTime)
+            curve = None
             if self.appSettings["setpoint"] is None:
                 print("No setpoint yet")
             else:
-                code, temperature = self.observation.get_verify_observation()
-                currentTime = int(time.time())
-                for control in self.controls:
-                    if control.isItTimeToModulate(currentTime):
-                        if code == 0:
-                            print("minimum position")
-                        elif code == -1:
-                            print("emergencyPosition")
-                        elif code == 1:
-                            curve = control.which_curve_right_now(
-                                temperature, self.appSettings["setpoint"],
-                                self.appSettings["offset"])
-                            output = curve.output(temperature,
-                                                  self.appSettings["setpoint"],
-                                                  self.appSettings["offset"])
-                            print(control.name, round(output), sep="---")
-            time.sleep(60)
+                observationCode, temperature = \
+                    self.observation.get_verify_observation()
+                print("current temp -->", temperature)
+                self.handle_cycle_trigger(observationCode, temperature)
+                if observationCode == -2:
+                    self.set_setpoint(payload=self.appSettings["setpoint"])
+                    print("thermostat reset")
+                elif observationCode == 0:
+                    self.execute_controls("minimum")
+                elif observationCode == -1:
+                    self.execute_controls("emergency")
+                elif observationCode == 1:
+                    if self.cycle == 1 and not self.timerCrossed:
+                        self.currentIterations += 1
+                        for control in self.controls:
+                            if control.isItTimeToModulate(currentTime):
+                                curve = control.which_curve_right_now(
+                                    temperature, self.appSettings["setpoint"],
+                                    self.appSettings["offset"])
+                                output = curve.output(
+                                    temperature, self.appSettings["setpoint"],
+                                    self.appSettings["offset"])
+                                self.save_last_output_in_decreasing_curve(
+                                    control, curve, output)
+                                output = control.map_to_real_value(output)
+                                self.transportInterface.set_control(
+                                    round(output), control.name)
+                    if curve:
+                        self.automate_offset(curve.name, temperature)
+            time.sleep(1)
 
 
 def main():
@@ -87,3 +174,6 @@ def main():
     appSettings = configInterface.get_all_app_settings()
     flow = ApplicationFlow(interface, appSettings)
     flow.start_flow()
+
+
+main()

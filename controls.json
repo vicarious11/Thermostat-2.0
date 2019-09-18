@@ -1,29 +1,35 @@
 {
   "dof": 5,
+  "cycleStartExpr": "observation >= (setpoint+offset)",
+  "cycleEndExpr": "observation <= (setpoint-offset)",
   "controls": {
     "actuator": {
-      "%torealvalue": "<<expression>>",
+      "%torealvalue": "percentage",
       "curves": {
         "increasing": {
           "triggerExpr": "observation > (setpoint + offset)",
-          "endExpr": "False"
+          "continueExpr": "observation >= setpoint",
+          "controllerDirection": 1
         },
         "decreasing": {
-          "triggerExpr": "(setpoint - offset) < observation < (setpoint + offset)",
-          "endExpr": "observation < (setpoint-offset)"
+          "triggerExpr": "(setpoint) > observation > (setpoint - offset)",
+          "continueExpr": "None",
+          "controllerDirection": -1
         }
       }
     },
     "vfd": {
-      "%torealvalue": "<<expression>>",
+      "%torealvalue": "percentage/2",
       "curves": {
         "increasing": {
           "triggerExpr": "observation > (setpoint + offset)",
-          "endExpr": "False"
+          "continueExpr": "observation >= setpoint",
+          "controllerDirection": 1
         },
         "decreasing": {
-          "triggerExpr": "(setpoint - offset) < observation < (setpoint + offset)",
-          "endExpr": "observation < (setpoint-offset)"
+          "triggerExpr": "(setpoint) > observation > (setpoint - offset)",
+          "continueExpr": "None",
+          "controllerDirection": -1
         }
       }
     }

@@ -9,7 +9,7 @@
       "minModulation": 60,
       "maxModulation": 100,
       "modulationSpeed": 2,
-      "sampleTime": 1
+      "sampleTime": 0.05
     },
     "vfd": {
       "deviceid": "444",
@@ -19,7 +19,7 @@
       "minModulation": 60,
       "maxModulation": 100,
       "modulationSpeed": 3,
-      "sampleTime": 2
+      "sampleTime": 0.05
     }
   },
   "observe": {
@@ -32,6 +32,6 @@
   },
   "minOffset": 0.25,
   "maxOffset": 0.75,
-  "timeToAchieve": 10,
+  "timeToAchieve": 0.9,
   "appMode": "cooling"
 }
