@@ -1,11 +1,11 @@
 class AB():
-	def __init__(self, controlSettings, appSettings):
-		self.maxModulation = controlSettings['maxModulation']
-		self.minModulation = controlSettings['minModulation']
-		self.modulationSpeed = controlSettings['modulationSpeed']
-		self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
-		self.degreeOfFreedom = appSettings['degreeOfFreedom']
-		self.setpoint = appSettings['setpoint']
+	def __init__(self, controlSettings):
+		self.maxModulation = controlSettings['actionableMax']
+		self.minModulation = controlSettings['actionableMin']
+		self.modulationSpeed = controlSettings['controllSpeed']
+		self.timeToAchieveSetpoint = controlSettings['timeToAchieveSetpoint']
+		self.degreeOfFreedom = controlSettings['degreeOfFreedom']
+		self.setpoint = controlSettings['setpoint']
 		self.controllerDirection = controlSettings['controllerDirection']
 		self.sampleTime = controlSettings['sampleTime']
 		
