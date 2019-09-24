@@ -1,80 +1,73 @@
-class ABController():
-    def __init__(self, controlSettings, appSettings):
-        self.maxModulation = controlSettings['maxModulation']
-        self.minModulation = controlSettings['minModulation']
-        self.modulationSpeed = controlSettings['modulationSpeed']
-        self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
-        self.degreeOfFreedom = appSettings['degreeOfFreedom']
-        self.setpoint = appSettings['setpoint']
-        self.controllerDirection = controlSettings['controllerDirection']
-        self.sampleTime = controlSettings['sampleTime']
-        self.lastInput = 0
-        self.minimumError = 0.01
-        self.toggleSpeed = 1
-        self.correction = 0
-        self.numberOfCommands = self.compute_number_of_commands()
-        self.iTerm = self.user_command_resolution()
-        self.output = self.iTerm
+class AB():
+	def __init__(self, controlSettings, appSettings):
+		self.maxModulation = controlSettings['maxModulation']
+		self.minModulation = controlSettings['minModulation']
+		self.modulationSpeed = controlSettings['modulationSpeed']
+		self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
+		self.degreeOfFreedom = appSettings['degreeOfFreedom']
+		self.setpoint = appSettings['setpoint']
+		self.controllerDirection = controlSettings['controllerDirection']
+		self.sampleTime = controlSettings['sampleTime']		
+		
+		self.lastInput = 0 
+		self.numberOfCommands = self.compute_number_of_commands()
+		self.iTerm = self.user_command_resolution()           #Add bias from user entered data
+		self.output = self.iTerm
+	
+	def compute(self, Input):
+		error = Input - self.setpoint
+		print("Error -->")
 
-    def compute(self, Input):
-        error = self.setpoint - Input
-        # print("Error -->")
-        # print(error)
+		if self.numberOfCommands == 0:
+			return self.maxModulation
 
-        if self.numberOfCommands == 0:
-            return self.maxModulation
+		if self.output == self.maxModulation:
+			self.numberOfCommands = self.numberOfCommands - 1
+			print(self.numberOfCommands)
+			return self.maxModulation
 
-        if self.output == self.maxModulation:
-            self.numberOfCommands = self.numberOfCommands - 1
-            # print(self.numberOfCommands)
-            return self.maxModulation
-        if error == 0:
-            self.headStart = self.iTerm / self.minimumError
-            self.correction = self.mapping_function(self.headStart)
-        else:
-            self.headStart = self.iTerm / error
-            self.correction = self.mapping_function(self.headStart)
+		self.reactiveTerm = calculate_reactive_term()
+		self.diffrentialTerm = calculate_differetial_term()
 
-        if self.controllerDirection == -1:
-            self.headStart *= -1
-            self.correction *= -1
+		if self.controllerDirection == -1:
+			self.reactiveTerm = -1 * self.reactiveTerm
+			self.diffrentialTerm = -1 * self.diffrentialTerm
+	
+		self.iTerm += self.reactive * error
 
-        self.iTerm += self.correction * error
+		delta = Input - self.lastInput
 
-        delta = Input - self.lastInput
+		self.output = self.iTerm - self.diffrentialTerm * delta
 
-        if self.lastInput == 0:
-            self.output = self.iTerm
-        else:
-            self.output = self.iTerm + self.correction * delta
+		self.capped_output()
+		self.lastInput = Input
+		self.numberOfCommands = self.numberOfCommands - 1
+		print(self.numberOfCommands)
+		return self.output
+ 
 
-        self.capped_output()
-        self.lastInput = Input
-        self.numberOfCommands = self.numberOfCommands - 1
-        # print(self.numberOfCommands)
-        return self.output
+	def calculate_reactive_term(self):
+		resoltionLeft = (self.maxModulation - self.output) / self.numberOfCommands
+		reactToError = resolutionLeft * self.modulationSpeed
+		return reactToError
 
-    def mapping_function(self, headStart):
-        dampingFactor = self.numberOfCommands * (self.maxModulation -
-                                                 self.output)
-        computedB = (self.headStart / dampingFactor) * self.toggleSpeed
-        return computedB
+	def calculate_differetial_term(self):
+		return (self.reactiveTerm / self.degreeOfFreedom)
 
-    def set_controller_direction(self, direction):
-        self.controllerDirection = direction
+	def set_controller_direction(self, direction):
+		self.controllerDirection = direction
+	
+	def compute_number_of_commands(self):
+		return round(self.timeToAchieveSetpoint/self.sampleTime)
 
-    def compute_number_of_commands(self):
-        return round(self.timeToAchieveSetpoint / self.sampleTime)
+	def capped_output(self):
+		if self.output > self.maxModulation:
+			self.output = self.maxModulation
+		elif self.output < self.minModulation: 
+			self.output = self.minModulation
 
-    def capped_output(self):
-        if self.output > self.maxModulation:
-            self.output = self.maxModulation
-        elif self.output < self.minModulation:
-            self.output = self.minModulation
+	def user_command_resolution(self):
+		resolution = ((self.maxModulation - self.minModulation) / self.degreeOfFreedom)
+		commandResolution = resolution * self.modulationSpeed + self.minModulation 
+		return commandResolution
 
-    def user_command_resolution(self):
-        resolution = ((self.maxModulation - self.minModulation) /
-                      self.degreeOfFreedom)
-        commandResolution = resolution * self.modulationSpeed + \
-            self.minModulation
-        return commandResolution
