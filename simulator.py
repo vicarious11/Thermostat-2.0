@@ -22,10 +22,16 @@ class Simulator:
 
     def build(self):
         for controlName, output in self.output.items():
+            timeSeries = []
+            controlOutput = []
             for timePoint, outputValue in output.items():
-                plt.plot(timePoint, outputValue, label=controlName)
-        for timePoint, observation in self.observation.items():
-            plt.plot(timePoint, observation, label=observation)
+                timeSeries.append(timePoint)
+                controlOutput.append(outputValue)
+            plt.plot(timeSeries, controlOutput, label=controlName)
+
+        observationTimeSeries = [timePoint for timePoint in self.observation]
+        observationValue = [output for _, output in self.observation.items()]
+        plt.plot(observationTimeSeries, observationValue, label="observation")
         plt.xlabel('Time')
         plt.ylabel('Values of Parameters')
         plt.title('Simulation Of PID 2.0')
