@@ -1,73 +1,71 @@
-class AB():
-	def __init__(self, controlSettings, appSettings):
-		self.maxModulation = controlSettings['maxModulation']
-		self.minModulation = controlSettings['minModulation']
-		self.modulationSpeed = controlSettings['modulationSpeed']
-		self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
-		self.degreeOfFreedom = appSettings['degreeOfFreedom']
-		self.setpoint = appSettings['setpoint']
-		self.controllerDirection = controlSettings['controllerDirection']
-		self.sampleTime = controlSettings['sampleTime']		
-		
-		self.lastInput = 0 
-		self.numberOfCommands = self.compute_number_of_commands()
-		self.iTerm = self.user_command_resolution()           #Add bias from user entered data
-		self.output = self.iTerm
-	
-	def compute(self, Input):
-		error = Input - self.setpoint
-		print("Error -->")
+class ABController():
+    def __init__(self, controlSettings, appSettings):
+        self.maxModulation = controlSettings['maxModulation']
+        self.minModulation = controlSettings['minModulation']
+        self.modulationSpeed = controlSettings['modulationSpeed']
+        self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
+        self.degreeOfFreedom = appSettings['degreeOfFreedom']
+        self.setpoint = appSettings['setpoint']
+        self.controllerDirection = controlSettings['controllerDirection']
+        self.sampleTime = controlSettings['sampleTime']
 
-		if self.numberOfCommands == 0:
-			return self.maxModulation
+        self.lastInput = 0
+        self.numberOfCommands = self.compute_number_of_commands()
+        self.iTerm = self.user_command_resolution()
+        self.output = self.iTerm
 
-		if self.output == self.maxModulation:
-			self.numberOfCommands = self.numberOfCommands - 1
-			print(self.numberOfCommands)
-			return self.maxModulation
+    def compute(self, Input):
+        error = Input - self.setpoint
 
-		self.reactiveTerm = calculate_reactive_term()
-		self.diffrentialTerm = calculate_differetial_term()
+        if self.numberOfCommands == 0:
+            return self.maxModulation
 
-		if self.controllerDirection == -1:
-			self.reactiveTerm = -1 * self.reactiveTerm
-			self.diffrentialTerm = -1 * self.diffrentialTerm
-	
-		self.iTerm += self.reactive * error
+        if self.output == self.maxModulation:
+            self.numberOfCommands = self.numberOfCommands - 1
+            return self.maxModulation
 
-		delta = Input - self.lastInput
+        self.reactiveTerm = self.calculate_reactive_term()
+        self.diffrentialTerm = self.calculate_differetial_term()
 
-		self.output = self.iTerm - self.diffrentialTerm * delta
+        if self.controllerDirection == -1:
+            self.reactiveTerm = -1 * self.reactiveTerm
+            self.diffrentialTerm = -1 * self.diffrentialTerm
 
-		self.capped_output()
-		self.lastInput = Input
-		self.numberOfCommands = self.numberOfCommands - 1
-		print(self.numberOfCommands)
-		return self.output
- 
+        self.iTerm += self.reactiveTerm * error
 
-	def calculate_reactive_term(self):
-		resoltionLeft = (self.maxModulation - self.output) / self.numberOfCommands
-		reactToError = resolutionLeft * self.modulationSpeed
-		return reactToError
+        delta = Input - self.lastInput
 
-	def calculate_differetial_term(self):
-		return (self.reactiveTerm / self.degreeOfFreedom)
+        self.output = self.iTerm - self.diffrentialTerm * delta
 
-	def set_controller_direction(self, direction):
-		self.controllerDirection = direction
-	
-	def compute_number_of_commands(self):
-		return round(self.timeToAchieveSetpoint/self.sampleTime)
+        self.capped_output()
+        self.lastInput = Input
+        self.numberOfCommands = self.numberOfCommands - 1
+        return self.output
 
-	def capped_output(self):
-		if self.output > self.maxModulation:
-			self.output = self.maxModulation
-		elif self.output < self.minModulation: 
-			self.output = self.minModulation
+    def calculate_reactive_term(self):
+        resolutionLeft = (self.maxModulation -
+                          self.output) / self.numberOfCommands
+        reactToError = resolutionLeft * self.modulationSpeed
+        return reactToError
 
-	def user_command_resolution(self):
-		resolution = ((self.maxModulation - self.minModulation) / self.degreeOfFreedom)
-		commandResolution = resolution * self.modulationSpeed + self.minModulation 
-		return commandResolution
+    def calculate_differetial_term(self):
+        return self.reactiveTerm
 
+    def set_controller_direction(self, direction):
+        self.controllerDirection = direction
+
+    def compute_number_of_commands(self):
+        return round(self.timeToAchieveSetpoint / self.sampleTime)
+
+    def capped_output(self):
+        if self.output > self.maxModulation:
+            self.output = self.maxModulation
+        elif self.output < self.minModulation:
+            self.output = self.minModulation
+
+    def user_command_resolution(self):
+        resolution = ((self.maxModulation - self.minModulation) /
+                      self.degreeOfFreedom)
+        commandResolution = resolution * self.modulationSpeed + \
+            self.minModulation
+        return commandResolution
