@@ -33,5 +33,6 @@
   "minOffset": 0.25,
   "maxOffset": 0.75,
   "timeToAchieve": 0.9,
-  "appMode": "cooling"
+  "appMode": "cooling",
+  "minSampleTime": 1
 }

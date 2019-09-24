@@ -168,7 +168,7 @@ class ApplicationFlow:
                                                      round(output))
                     if curve:
                         self.automate_offset(curve.name, temperature)
-            time.sleep(1)
+            time.sleep(self.appSettings["minSampleTime"])
 
 
 def main():

@@ -63,4 +63,5 @@ class ConfigInterface:
             "cycleStartExpr"]
         appSettings["cycleEndExpression"] = self.controlsDriver[
             "cycleEndExpr"]
+        appSettings["minSampleTime"] = self.frontendConfig["minSampleTime"]
         return appSettings
