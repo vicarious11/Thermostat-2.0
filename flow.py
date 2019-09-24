@@ -1,3 +1,4 @@
+from simulator import Simulator
 from observation import Observation
 import time
 from control import Control
@@ -24,6 +25,7 @@ def on_message(topic, payload):
 
 class ApplicationFlow:
     def __init__(self, interface, appSettings):
+        self.sim = Simulator()
         self.interface = interface
         self.configInterface = interface["config"]
         self.transportInterface = interface["transport"]
@@ -125,13 +127,18 @@ class ApplicationFlow:
     def start_flow(self):
         while 1:
             currentTime = int(time.time())
+            self.sim.save_time_x_axis(currentTime)
             self.progress_controls_timer(currentTime)
             curve = None
             if self.appSettings["setpoint"] is None:
                 print("No setpoint yet")
             else:
-                observationCode, temperature = \
-                    self.observation.get_verify_observation()
+                try:
+                    observationCode, temperature = \
+                        self.observation.get_verify_observation()
+                except StopIteration:
+                    self.sim.build()
+                self.sim.save_observation(currentTime, temperature)
                 print("current temp -->", temperature)
                 self.handle_cycle_trigger(observationCode, temperature)
                 if observationCode == -2:
@@ -157,6 +164,8 @@ class ApplicationFlow:
                                 output = control.map_to_real_value(output)
                                 self.transportInterface.set_control(
                                     round(output), control.name)
+                                self.sim.save_output(control.name, currentTime,
+                                                     round(output))
                     if curve:
                         self.automate_offset(curve.name, temperature)
             time.sleep(1)
