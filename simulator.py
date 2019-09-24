@@ -24,16 +24,23 @@ class Simulator:
         for controlName, output in self.output.items():
             timeSeries = []
             controlOutput = []
-            for timePoint, outputValue in output.items():
+        fig, ax1 = plt.subplots()
+	color = 'tab:red'
+	ax1.set_xlabel('time (s)')
+	ax1.set_ylabel('Controller Positions', color = color)   
+	for timePoint, outputValue in output.items():
                 timeSeries.append(timePoint)
                 controlOutput.append(outputValue)
-            plt.plot(timeSeries, controlOutput, label=controlName)
+		ax1.plot(timeSeries, controlOutput, label=controlName)
+		ax1.tick_params(axis='y', labelcolor = color)
 
         observationTimeSeries = [timePoint for timePoint in self.observation]
         observationValue = [output for _, output in self.observation.items()]
-        plt.plot(observationTimeSeries, observationValue, label="observation")
-        plt.xlabel('Time')
-        plt.ylabel('Values of Parameters')
+	ax2 = ax1.twinx()
+	color = 'tab:blue'
+        ax2.set_ylabel('Observation', color = color)
+	ax2.plot(observationTimeSeries, observationValue, label="observation")
+        ax2.tick_params(axis= 'y', labelcolor = color)
         plt.title('Simulation Of PID 2.0')
         plt.legend()
         plt.show()
