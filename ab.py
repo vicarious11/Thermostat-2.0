@@ -24,32 +24,33 @@ class ABController():
             self.numberOfCommands = self.numberOfCommands - 1
             return self.maxModulation
 
-        self.reactiveTerm = self.calculate_reactive_term()
-        self.diffrentialTerm = self.calculate_differetial_term()
+        self.reactiveTerm = self.calculate_reactive_constant()
+     #   print(self.reactiveTerm)
 
-        if self.controllerDirection == -1:
-            self.reactiveTerm = -1 * self.reactiveTerm
-            self.diffrentialTerm = -1 * self.diffrentialTerm
+  #     if self.controllerDirection == -1:                  # if application is in forward mode(APPLICATION = HEATING), set controller direction = -1
+ #       	self.reactiveTerm = -1 * self.reactiveTerm
+
+      #  print(self.reactiveTerm)
 
         self.iTerm += self.reactiveTerm * error
+       # print("Integral Component")
+       #	print(self.iTerm)
+
+        if self.lastInput == 0:                        #Might be false for very small cases where Input value read from the sensor is '0' 
+        	self.lastInput = Input
 
         delta = Input - self.lastInput
+        #print("Delta --->")
+       # print(delta)
 
-        self.output = self.iTerm - self.diffrentialTerm * delta
-
+        self.output = self.iTerm - self.reactiveTerm * delta * self.degreeOfFreedom
         self.capped_output()
         self.lastInput = Input
         self.numberOfCommands = self.numberOfCommands - 1
         return self.output
 
-    def calculate_reactive_term(self):
-        resolutionLeft = (self.maxModulation -
-                          self.output) / self.numberOfCommands
-        reactToError = resolutionLeft * self.modulationSpeed
-        return reactToError
-
-    def calculate_differetial_term(self):
-        return self.reactiveTerm
+    def calculate_reactive_constant(self):
+        return ((self.maxModulation - self.output) / self.numberOfCommands) * self.modulationSpeed
 
     def set_controller_direction(self, direction):
         self.controllerDirection = direction

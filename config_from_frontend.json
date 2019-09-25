@@ -8,7 +8,7 @@
       "minimumPosition": 10,
       "minModulation": 60,
       "maxModulation": 100,
-      "modulationSpeed": 2,
+      "modulationSpeed": 3,
       "sampleTime": 0.05
     },
     "vfd": {
