@@ -19,7 +19,7 @@
       "minModulation": 50,
       "maxModulation": 100,
       "modulationSpeed": 1,
-      "sampleTime": 0.1
+      "sampleTime": 0.03
     }
   },
   "observe": {
@@ -30,8 +30,8 @@
       "formula": "1267.temp"
     }
   },
-  "minOffset": 0.3,
-  "maxOffset": 0.9,
+  "minOffset": 0.25,
+  "maxOffset": 0.5,
   "timeToAchieve": 0.9,
   "appMode": "cooling",
   "minSampleTime": 1
