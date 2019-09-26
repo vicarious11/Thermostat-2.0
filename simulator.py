@@ -24,6 +24,7 @@ class Simulator:
         controlOutput = {}
         for controlName, output in self.output.items():
             controlOutput[controlName] = {}
+            currentOutput = None
             for timePoint in self.timeSeries:
                 controlOutput[controlName][timePoint] = 0
             for timePoint, outputValue in output.items():
@@ -32,9 +33,9 @@ class Simulator:
                 if outputValue != 0:
                     currentOutput = outputValue
                 else:
-                    try:
+                    if currentOutput:
                         controlOutput[controlName][timePoint] = currentOutput
-                    except UnboundLocalError:
+                    else:
                         controlOutput[controlName][timePoint] = 0
         return controlOutput
 
@@ -45,7 +46,7 @@ class Simulator:
         ax1.set_ylabel('Controller Positions', color="tab:olive")
         ax1.tick_params(axis='y', labelcolor="tab:olive")
         controlOutput = self.make_plottable_output()
-
+        print(controlOutput)
         for controlName, output in controlOutput.items():
             timeSeries = []
             outputForPlot = []
