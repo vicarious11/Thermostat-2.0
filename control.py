@@ -64,8 +64,7 @@ class Control:
             Curve(
                 name, interface, {
                     "triggerExpr": curveConfig["triggerExpr"],
-                    "continueExpr": curveConfig["continueExpr"],
-                    "direction": curveConfig["controllerDirection"]
+                    "continueExpr": curveConfig["continueExpr"]
                 }, controlSettings, appSettings)
             for name, curveConfig in curvesConfig.items()
         ]

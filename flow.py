@@ -68,6 +68,7 @@ class ApplicationFlow:
            curveName == "increasing":
             self.execute_controls("maximum")
             self.transportInterface.send_alert("timetoachieve")
+            self.appSettings["offset"] = self.appSettings["minOffset"]
             self.timerCrossed = 1
         elif self.currentIterations >= self.maxIterations and \
                 curveName == "decreasing":

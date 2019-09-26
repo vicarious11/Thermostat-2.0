@@ -8,13 +8,11 @@
       "curves": {
         "increasing": {
           "triggerExpr": "observation > (setpoint + offset)",
-          "continueExpr": "observation >= setpoint",
-          "controllerDirection": 1
+          "continueExpr": "observation >= setpoint"
         },
         "decreasing": {
           "triggerExpr": "(setpoint) > observation > (setpoint - offset)",
-          "continueExpr": "None",
-          "controllerDirection": -1
+          "continueExpr": "None"
         }
       }
     },
@@ -23,13 +21,11 @@
       "curves": {
         "increasing": {
           "triggerExpr": "observation > (setpoint + offset)",
-          "continueExpr": "observation >= setpoint",
-          "controllerDirection": 1
+          "continueExpr": "observation >= setpoint"
         },
         "decreasing": {
           "triggerExpr": "(setpoint) > observation > (setpoint - offset)",
-          "continueExpr": "None",
-          "controllerDirection": -1
+          "continueExpr": "None"
         }
       }
     }
