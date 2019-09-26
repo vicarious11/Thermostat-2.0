@@ -25,7 +25,7 @@ class ABController():
             return self.maxModulation
 
         self.reactiveTerm = self.calculate_reactive_constant()
-        #   print(self.reactiveTerm)
+             #print(self.reactiveTerm)
 
         #     if self.controllerDirection == -1:                  # if application is in forward mode(APPLICATION = HEATING), set controller direction = -1
         #       	self.reactiveTerm = -1 * self.reactiveTerm
@@ -43,7 +43,7 @@ class ABController():
         #print("Delta --->")
         # print(delta)
 
-        self.output = self.iTerm - self.reactiveTerm * delta * self.degreeOfFreedom
+        self.output = self.iTerm - self.reactiveTerm * delta 
         self.capped_output()
         self.lastInput = Input
         self.numberOfCommands = self.numberOfCommands - 1
