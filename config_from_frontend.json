@@ -4,11 +4,11 @@
     "actuator": {
       "deviceid": "1233",
       "param": "changesetpoint",
-      "emergencyPosition": 100,
+      "emergencyPosition": 75,
       "minimumPosition": 10,
-      "minModulation": 60,
+      "minModulation": 0,
       "maxModulation": 100,
-      "modulationSpeed": 3,
+      "modulationSpeed": 5,
       "sampleTime": 0.05
     },
     "vfd": {
@@ -16,9 +16,9 @@
       "param": "changesetpoint",
       "emergencyPosition": 80,
       "minimumPosition": 10,
-      "minModulation": 60,
+      "minModulation": 50,
       "maxModulation": 100,
-      "modulationSpeed": 3,
+      "modulationSpeed": 5,
       "sampleTime": 0.05
     }
   },
