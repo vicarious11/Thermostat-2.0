@@ -6,7 +6,7 @@ class ABController():
         self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
         self.degreeOfFreedom = appSettings['degreeOfFreedom']
         self.setpoint = appSettings['setpoint']
-        self.controllerDirection = controlSettings['controllerDirection']
+        self.controllerDirection = appSettings['controllerDirection']
         self.sampleTime = controlSettings['sampleTime']
 
         self.lastInput = 0
@@ -25,23 +25,23 @@ class ABController():
             return self.maxModulation
 
         self.reactiveTerm = self.calculate_reactive_constant()
-     #   print(self.reactiveTerm)
+        #   print(self.reactiveTerm)
 
-  #     if self.controllerDirection == -1:                  # if application is in forward mode(APPLICATION = HEATING), set controller direction = -1
- #       	self.reactiveTerm = -1 * self.reactiveTerm
+        #     if self.controllerDirection == -1:                  # if application is in forward mode(APPLICATION = HEATING), set controller direction = -1
+        #       	self.reactiveTerm = -1 * self.reactiveTerm
 
-      #  print(self.reactiveTerm)
+        #  print(self.reactiveTerm)
 
         self.iTerm += self.reactiveTerm * error
-       # print("Integral Component")
-       #	print(self.iTerm)
+        # print("Integral Component")
+        #	print(self.iTerm)
 
-        if self.lastInput == 0:                        #Might be false for very small cases where Input value read from the sensor is '0' 
-        	self.lastInput = Input
+        if self.lastInput == 0:  #Might be false for very small cases where Input value read from the sensor is '0'
+            self.lastInput = Input
 
         delta = Input - self.lastInput
         #print("Delta --->")
-       # print(delta)
+        # print(delta)
 
         self.output = self.iTerm - self.reactiveTerm * delta * self.degreeOfFreedom
         self.capped_output()
@@ -50,7 +50,8 @@ class ABController():
         return self.output
 
     def calculate_reactive_constant(self):
-        return ((self.maxModulation - self.output) / self.numberOfCommands) * self.modulationSpeed
+        return ((self.maxModulation - self.output) /
+                self.numberOfCommands) * self.modulationSpeed
 
     def set_controller_direction(self, direction):
         self.controllerDirection = direction
