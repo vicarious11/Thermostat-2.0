@@ -3,9 +3,12 @@ from wrapped_mqtt import MqttCustom
 
 class TransportInterface:
     def __init__(self):
-        with open("./temp_data.txt") as f:
-            tempData = f.readlines()
-        self.tempData = (temp.split("\n")[0] for temp in tempData)
+        with open("./sim_data.txt") as f:
+            data = f.readlines()
+        self.tempData = (tempAhu.split("\n")[0].split(",")[0]
+                         for tempAhu in data)
+        self.kwData = (tempAhu.split("\n")[0].split(",")[1]
+                       for tempAhu in data)
         self.previousControls = {}
         self.alertCount = 0
 
@@ -27,9 +30,13 @@ class TransportInterface:
 
     def get_observation(self, observationSource):
         if "temp" in observationSource:
-            return float(next(self.tempData))
+            temp = next(self.tempData)
+            if temp == "None":
+                return None
+            else:
+                return float(temp)
         if "KW" in observationSource:
-            return True
+            return eval(next(self.kwData))
 
     def set_control(self, value, destination):
         previousValue = self.previousControls.get(destination, None)
