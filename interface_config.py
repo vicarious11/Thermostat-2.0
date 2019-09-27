@@ -14,13 +14,15 @@ class ConfigInterface:
         return data
 
     def get_curves(self, controlName):
-        return self.controlsDriver["controls"][controlName]["curves"]
+        app = self.frontendConfig["appMode"]
+        return self.controlsDriver[app]["controls"][controlName]["curves"]
 
     def get_observation(self):
         return self.frontendConfig["observe"]
 
     def get_all_control_settings(self):
         controlSettings = {}
+        app = self.frontendConfig["appMode"]
         for name, meta in self.frontendConfig["controls"].items():
             controlSettings[name] = {"controlParamInfo": {}, "meta": {}}
             controlSettings[name]["controlParamInfo"]["name"] = name
@@ -39,16 +41,16 @@ class ConfigInterface:
                 "modulationSpeed"]
             controlSettings[name]["meta"]["sampleTime"] = meta["sampleTime"]
             controlSettings[name]["meta"][
-                "%torealvalue"] = self.controlsDriver["controls"][name][
+                "%torealvalue"] = self.controlsDriver[app]["controls"][name][
                     "%torealvalue"]
         return controlSettings
 
     def get_all_app_settings(self):
         appSettings = {}
-
-        if self.frontendConfig["appMode"] == "cooling":
+        app = self.frontendConfig["appMode"]
+        if app == "cooling":
             controllerDirection = 1
-        elif self.frontendConfig["appMode"] == "heating":
+        elif app == "heating":
             controllerDirection = -1
 
         appSettings["controllerDirection"] = controllerDirection
@@ -59,9 +61,11 @@ class ConfigInterface:
         appSettings["offset"] = None
         appSettings["maxOffset"] = self.frontendConfig["maxOffset"]
         appSettings["minOffset"] = self.frontendConfig["minOffset"]
-        appSettings["cycleStartExpression"] = self.controlsDriver[
+        appSettings["cycleStartExpression"] = self.controlsDriver[app][
             "cycleStartExpr"]
-        appSettings["cycleEndExpression"] = self.controlsDriver[
+        appSettings["cycleEndExpression"] = self.controlsDriver[app][
             "cycleEndExpr"]
         appSettings["minSampleTime"] = self.frontendConfig["minSampleTime"]
+        appSettings["newOffsetExpression"] = self.controlsDriver[app][
+            "newOffsetExpr"]
         return appSettings

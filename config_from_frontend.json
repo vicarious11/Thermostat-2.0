@@ -6,9 +6,9 @@
       "param": "changesetpoint",
       "emergencyPosition": 75,
       "minimumPosition": 10,
-      "minModulation": 0,
+      "minModulation": 60,
       "maxModulation": 100,
-      "modulationSpeed": 5,
+      "modulationSpeed": 2,
       "sampleTime": 0.05
     },
     "vfd": {
@@ -18,8 +18,8 @@
       "minimumPosition": 10,
       "minModulation": 50,
       "maxModulation": 100,
-      "modulationSpeed": 5,
-      "sampleTime": 0.05
+      "modulationSpeed": 1,
+      "sampleTime": 0.03
     }
   },
   "observe": {
@@ -31,7 +31,7 @@
     }
   },
   "minOffset": 0.25,
-  "maxOffset": 0.75,
+  "maxOffset": 0.5,
   "timeToAchieve": 0.9,
   "appMode": "cooling",
   "minSampleTime": 1

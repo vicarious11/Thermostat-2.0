@@ -37,6 +37,7 @@ class ApplicationFlow:
         self.observation = Observation(interface, self.observationSettings)
         self.cycleStartExpression = appSettings["cycleStartExpression"]
         self.cycleEndExpression = appSettings["cycleEndExpression"]
+        self.newOffsetExpression = appSettings["newOffsetExpression"]
         self.cycle = 0
         self.timerCrossed = 0
         self.currentIterations = 0
@@ -73,16 +74,17 @@ class ApplicationFlow:
         elif self.currentIterations >= self.maxIterations and \
                 curveName == "decreasing":
             self.execute_controls("minimum")
-            observationDistanceFromSp = abs(temperature -
-                                            self.appSettings["setpoint"])
-            minOffsetDistanceFromSp = abs(self.appSettings["setpoint"] -
-                                          self.appSettings["minOffset"])
-            if observationDistanceFromSp > minOffsetDistanceFromSp:
-                self.appSettings["offset"] = observationDistanceFromSp
-            elif observationDistanceFromSp < minOffsetDistanceFromSp:
-                self.appSettings["offset"] = self.appSettings["minOffset"]
+            self.appSettings["offset"] = self.generate_new_offset(temperature)
             self.set_setpoint(payload=self.appSettings["setpoint"])
             self.cycle = 0
+
+    def generate_new_offset(self, observation):
+        setpoint = self.appSettings["setpoint"]
+        minOffset = self.appSettings["minOffset"]
+        maxOffset = self.appSettings["maxOffset"]
+        for expr, newOffset in self.newOffsetExpression.items():
+            if eval(expr):
+                return eval(newOffset)
 
     def cycle_end(self, observation):
         offset = self.appSettings["offset"]
