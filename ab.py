@@ -25,25 +25,15 @@ class ABController():
             return self.maxModulation
 
         self.reactiveTerm = self.calculate_reactive_constant()
-             #print(self.reactiveTerm)
-
-        #     if self.controllerDirection == -1:                  # if application is in forward mode(APPLICATION = HEATING), set controller direction = -1
-        #       	self.reactiveTerm = -1 * self.reactiveTerm
-
-        #  print(self.reactiveTerm)
 
         self.iTerm += self.reactiveTerm * error
-        # print("Integral Component")
-        #	print(self.iTerm)
 
-        if self.lastInput == 0:  #Might be false for very small cases where Input value read from the sensor is '0'
+        if self.lastInput == 0:
             self.lastInput = Input
 
         delta = Input - self.lastInput
-        #print("Delta --->")
-        # print(delta)
 
-        self.output = self.iTerm - self.reactiveTerm * delta 
+        self.output = self.iTerm - self.reactiveTerm * delta
         self.capped_output()
         self.lastInput = Input
         self.numberOfCommands = self.numberOfCommands - 1
