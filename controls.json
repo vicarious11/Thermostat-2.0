@@ -40,7 +40,7 @@
     "cycleStartExpr": "observation <= (setpoint-offset)",
     "cycleEndExpr": "observation >= (setpoint+offset)",
     "newOffsetExpr": {
-      "setpoint < observation < (setpoint - minOffset)": "minOffset",
+      "setpoint < observation <= (setpoint + minOffset)": "minOffset",
       "(setpoint + minOffset) < observation < (setpoint + maxOffset)": "(observation - setpoint)"
     },
     "controls": {
