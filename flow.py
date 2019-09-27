@@ -108,6 +108,8 @@ class ApplicationFlow:
             self.transportInterface.set_control(round(output), control.name)
 
     def handle_cycle_trigger(self, observationCode, observation):
+        if self.cycle == 0 and not self.cycle_start(observation):
+            self.execute_controls("minimum")
         if self.cycle == 1 and (observationCode == 1
                                 and self.cycle_end(observation)):
             self.cycle = 0
