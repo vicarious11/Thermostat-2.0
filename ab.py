@@ -24,16 +24,16 @@ class ABController():
             self.numberOfCommands = self.numberOfCommands - 1
             return self.maxModulation
 
-        self.reactiveTerm = self.calculate_reactive_constant()
+        reactiveTerm = self.calculate_reactive_constant() * self.controllerDirection
 
-        self.iTerm += self.reactiveTerm * error
+        self.iTerm += reactiveTerm * error
 
         if self.lastInput == 0:
             self.lastInput = Input
 
         delta = Input - self.lastInput
 
-        self.output = self.iTerm - self.reactiveTerm * delta
+        self.output = self.iTerm - reactiveTerm * delta
         self.capped_output()
         self.lastInput = Input
         self.numberOfCommands = self.numberOfCommands - 1
@@ -42,9 +42,6 @@ class ABController():
     def calculate_reactive_constant(self):
         return ((self.maxModulation - self.output) /
                 self.numberOfCommands) * self.modulationSpeed
-
-    def set_controller_direction(self, direction):
-        self.controllerDirection = direction
 
     def compute_number_of_commands(self):
         return round(self.timeToAchieveSetpoint / self.sampleTime)
@@ -56,8 +53,6 @@ class ABController():
             self.output = self.minModulation
 
     def user_command_resolution(self):
-        resolution = ((self.maxModulation - self.minModulation) /
-                      self.degreeOfFreedom)
-        commandResolution = resolution * self.modulationSpeed + \
-            self.minModulation
+        resolution = ((self.maxModulation - self.minModulation) / self.degreeOfFreedom)
+        commandResolution = resolution * self.modulationSpeed + self.minModulation
         return commandResolution
