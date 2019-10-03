@@ -20,20 +20,16 @@ class Observation:
         # : ahuStatus from false to true
         if self.previousAhuStatus == False and self.ahuStatus == True:
             observationCode = -2
-            temperature = None
 
         # : minimum position
         elif self.ahuStatus == False:
             observationCode = 0
-            temperature = None
 
         # : emergency position
         elif (self.ahuStatus is None) or (self.temperature is None):
             observationCode = -1
-            temperature = None
         else:
             observationCode = 1
-            temperature = self.temperature
 
         self.previousAhuStatus = self.ahuStatus
-        return observationCode, temperature
+        return observationCode, self.temperature

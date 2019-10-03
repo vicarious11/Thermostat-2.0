@@ -151,8 +151,10 @@ class ApplicationFlow:
                     print("thermostat reset")
                 elif observationCode == 0:
                     self.execute_controls("minimum")
+                    self.cycle = 0
                 elif observationCode == -1:
                     self.execute_controls("emergency")
+                    self.cycle = 0
                 elif observationCode == 1:
                     if self.cycle == 1 and not self.timerCrossed:
                         self.currentIterations += 1
