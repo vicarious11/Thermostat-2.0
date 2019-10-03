@@ -106,6 +106,7 @@ class ApplicationFlow:
             output = controlValuesAtDiffLevels[level]
             output = control.map_to_real_value(output)
             self.transportInterface.set_control(round(output), control.name)
+            self.sim.save_output(control.name, self.currentTime, round(output))
 
     def handle_cycle_trigger(self, observationCode, observation):
         if self.cycle == 0 and not self.cycle_start(observation):
@@ -131,9 +132,9 @@ class ApplicationFlow:
 
     def start_flow(self):
         while 1:
-            currentTime = int(time.time())
-            self.sim.save_time_x_axis(currentTime)
-            self.progress_controls_timer(currentTime)
+            self.currentTime = int(time.time())
+            self.sim.save_time_x_axis(self.currentTime)
+            self.progress_controls_timer(self.currentTime)
             curve = None
             if self.appSettings["setpoint"] is None:
                 print("No setpoint yet")
@@ -143,7 +144,7 @@ class ApplicationFlow:
                         self.observation.get_verify_observation()
                 except StopIteration:
                     self.sim.build()
-                self.sim.save_observation(currentTime, temperature)
+                self.sim.save_observation(self.currentTime, temperature)
                 print("current temp -->", temperature)
                 self.handle_cycle_trigger(observationCode, temperature)
                 if observationCode == -2:
@@ -159,7 +160,7 @@ class ApplicationFlow:
                     if self.cycle == 1 and not self.timerCrossed:
                         self.currentIterations += 1
                         for control in self.controls:
-                            if control.isItTimeToModulate(currentTime):
+                            if control.isItTimeToModulate(self.currentTime):
                                 curve = control.which_curve_right_now(
                                     temperature, self.appSettings["setpoint"],
                                     self.appSettings["offset"])
@@ -171,7 +172,8 @@ class ApplicationFlow:
                                 output = control.map_to_real_value(output)
                                 self.transportInterface.set_control(
                                     round(output), control.name)
-                                self.sim.save_output(control.name, currentTime,
+                                self.sim.save_output(control.name,
+                                                     self.currentTime,
                                                      round(output))
                     if curve:
                         self.automate_offset(curve.name, temperature)
