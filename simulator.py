@@ -63,8 +63,8 @@ class Simulator:
         observationTimeSeries = [timePoint for timePoint in self.observation]
         observationValue = [output for _, output in self.observation.items()]
         ax2 = ax1.twinx()
-        ax2.set_ylabel('Observation', color="tab:olive")
-        ax2.plot(observationTimeSeries, observationValue, label="observation")
+        ax2.set_ylabel('Area Temperature', color="tab:olive")
+        ax2.plot(observationTimeSeries, observationValue)
         ax2.tick_params(axis='y', labelcolor="tab:olive")
         plt.title('Simulation Of PID 2.0')
         plt.legend()
