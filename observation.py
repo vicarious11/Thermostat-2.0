@@ -16,7 +16,6 @@ class Observation:
             self.ahuObservationSource)
         self.temperature = self.transportInterface.get_observation(
             self.temperatureSource)
-
         # : ahuStatus from false to true
         if self.previousAhuStatus == False and self.ahuStatus == True:
             observationCode = -2
@@ -26,7 +25,7 @@ class Observation:
             observationCode = 0
 
         # : emergency position
-        elif (self.ahuStatus is None) or (self.temperature is None):
+        elif (self.ahuStatus == None) or (self.temperature == None):
             observationCode = -1
         else:
             observationCode = 1

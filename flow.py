@@ -109,7 +109,8 @@ class ApplicationFlow:
             self.sim.save_output(control.name, self.currentTime, round(output))
 
     def handle_cycle_trigger(self, observationCode, observation):
-        if self.cycle == 0 and not self.cycle_start(observation):
+        if self.cycle == 0 and (observationCode == 1) and (
+                not self.cycle_start(observation)):
             self.execute_controls("minimum")
         if self.cycle == 1 and (observationCode == 1
                                 and self.cycle_end(observation)):
