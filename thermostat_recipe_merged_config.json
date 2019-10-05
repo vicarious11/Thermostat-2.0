@@ -6,7 +6,6 @@
       "maxOffset": 0.5,
       "timeToAchieve": 0.9,
       "appMode": "cooling",
-      "minSampleTime": 0.8
     },
     "maxLogsNeeded": "1",
     "failsafe": "{}",

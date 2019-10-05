@@ -1,0 +1,10 @@
+{
+  "app": {
+    "setpoint": "None",
+    "offset": "None",
+    "updateSetpoint": "False",
+    "currentIterations": 0,
+    "timerCrossed": 0,
+    "modulationCycle": 0
+  }
+}
