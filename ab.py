@@ -41,7 +41,7 @@ class ABController():
         ) * self.controllerDirection
 
         self.iTerm += reactiveTerm * error
-        state["iTerm"] = self.iTerm
+        self.state["iTerm"] = self.iTerm
 
         if self.lastInput == "default":
             self.lastInput = Input
@@ -51,9 +51,9 @@ class ABController():
         self.output = self.iTerm - reactiveTerm * delta
         self.capped_output()
         self.lastInput = Input
-        state["lastInput"] = self.lastInput
+        self.state["lastInput"] = self.lastInput
         self.numberOfCommands = self.numberOfCommands - 1
-        state["numberOfCommands"] = self.numberOfCommands
+        self.state["numberOfCommands"] = self.numberOfCommands
         return self.output
 
     def calculate_reactive_constant(self):
