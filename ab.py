@@ -14,9 +14,17 @@ class ABController():
             self.controllerDirection = -1
         self.sampleTime = controlSettings['sampleTime']
 
-        self.lastInput = 0
-        self.numberOfCommands = self.compute_number_of_commands()
-        self.iTerm = self.user_command_resolution()
+        if state["numberOfCommands"] == "default":
+            self.numberOfCommands = self.compute_number_of_commands()
+        else:
+            self.numberOfCommands = state["numberOfCommands"]
+        
+        if state["iTerm"] == "default":
+            self.iTerm = self.user_command_resolution()
+        else:
+            self.iTerm = state["iTerm"]
+
+        self.lastInput = state['lastInput']
         self.output = self.iTerm
 
     def compute(self, Input):
@@ -34,7 +42,7 @@ class ABController():
 
         self.iTerm += reactiveTerm * error
 
-        if self.lastInput == 0:
+        if self.lastInput == "default":
             self.lastInput = Input
 
         delta = Input - self.lastInput
