@@ -4,79 +4,39 @@ from curve import Curve
 
 
 class Control:
-    def __init__(self, interface, controlParamInformation, controlSettings,
-                 appSettings):
+    def __init__(self, configInterface, actionSettings):
         """Constructor.
 
         Args:
-            interface (dict): a collection of config and transport interfaces.
-                {
-                    "config" : `configInterface`,
-                    "transport" : `transportInterface`
-                }
-            controlParamInformation (dict): store containing information of
-                control parameter.
-                {
-                    "name" : "actuator",
-                    "deviceid" : "123",
-                    "param" : "changesetpoint"
-                }
-            controlSettings (dict): settings at which control parameter is
-                modulated
-                {
-                    "emergencyPosition" : 80,
-                    "minModulation" : 60,
-                    "maxModulation" : 100,
-                    "modulationSpeed" : 5,
-                    "sampleTime" : 2,
-                    "%torealvalue" : "percentage/2"
-                }
-            appSettings (dict): settings at which thermostat is
-                running
-                {
-                    "controllerDirection" : 1,
-                    "timeToAchieveSetpoint" : 15,
-                    "degreeOfFreedom" : 5,
-                    "setpoint" : 25,
-                    "offset" : 0.5
-                }
+            actionSettings(dict) : settings of an actionable
+            {
+                "name" : "actuator",
+                "emergencyPosition" : 75,
+                "minimumPosition" : 10,
+                "minModulation" : 60,
+                "maxModulation" : 85,
+                "modulationSpeed" : 2,
+                "sampleTime" : 2
+            }
         """
-        self.name = controlParamInformation["name"]
-        self.configInterface = interface["config"]
-        self.transportInterface = interface["transport"]
-        self.minimumPosition = controlSettings["minimumPosition"]
-        self.emergency = controlSettings["emergencyPosition"]
-        self.minModulation = controlSettings["minModulation"]
-        self.maxModulation = controlSettings["maxModulation"]
-        self.modulationSpeed = controlSettings["modulationSpeed"]
-        self.percentToRealExpression = controlSettings["%torealvalue"]
-        sampleTimeInSecs = controlSettings["sampleTime"] * 60
-        self.curves = self._init_curves(interface, controlSettings,
-                                        appSettings)
-        initTime = int(time.time())
-        self.timeSeriesForModulation = (initTime + (n + 1) * sampleTimeInSecs
-                                        for n in count())
-        self.nextIteration = int(next(self.timeSeriesForModulation))
+        self.name = actionSettings["name"]
+        self.configInterface = configInterface
+        self.minimumPosition = actionSettings["minimumPosition"]
+        self.emergency = actionSettings["emergencyPosition"]
+        self.minModulation = actionSettings["minModulation"]
+        self.maxModulation = actionSettings["maxModulation"]
+        self.modulationSpeed = actionSettings["modulationSpeed"]
+        self.percentToRealExpression = self.configInterface.expressions(
+            "%torealvalue")
+        self.sampleTime = actionSettings["sampleTime"]
+        self.curves = self._init_curves(actionSettings)
 
-    def _init_curves(self, interface, controlSettings, appSettings):
+    def _init_curves(self, actionSettings):
         curvesConfig = self.configInterface.get_curves(self.name)
         return [
-            Curve(
-                name, interface, {
-                    "triggerExpr": curveConfig["triggerExpr"],
-                    "continueExpr": curveConfig["continueExpr"]
-                }, controlSettings, appSettings)
+            Curve(name, self.configInterface, curvesConfig, actionSettings)
             for name, curveConfig in curvesConfig.items()
         ]
-
-    def progress_timer(self, currentEpochTime):
-        if currentEpochTime > self.nextIteration:
-            self.nextIteration = int(next(self.timeSeriesForModulation))
-
-    def isItTimeToModulate(self, currentEpochTime):
-        if self.nextIteration == currentEpochTime:
-            return True
-        return False
 
     def which_curve_right_now(self, observation, setpoint, offset):
         # : curve expressions should not clash

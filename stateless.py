@@ -1,30 +1,51 @@
-import os
 from control import Control
 from interface_config import ConfigInterface
 from observation import Observation
 
 
 class Thermal_0_0_1:
-    def __init__(
-            self,
-            appSettings,
-            actionSettings,
-            state={
-                "offset": "default",
-                "updateSetpoint": "True",
-                "currentIterations": 0,
-                "timerCrossed": 0,
-                "cycle": 0
-            }):
+    defaultState = {
+        "offset": "default",
+        "currentIterations": 0,
+        "timerCrossed": 0,
+        "cycle": 0,
+        "previousAhuStatus": 0,
+        "curve": {
+            "increasing": {
+                "iTerm": "default",
+                "numberOfCommands": "default",
+                "lastInput": "default"
+            },
+            "decreasing": {
+                "iTerm": "default",
+                "numberOfCommands": "default",
+                "lastInput": "default"
+            }
+        }
+    }
+
+    def __init__(self, appConfig, state=None):
         """
         Args:
             state(dict) : previous state
             {
-                "offset" : "default",
-                "updateSetpoint" : "True",
-                "currentIterations" : 0,
-                "timerCrossed" : 0
-                "cycle" : 0,
+                "offset": "default",
+                "currentIterations": 0,
+                "timerCrossed": 0,
+                "cycle": 0,
+                "previousAhuStatus": 0,
+                "curve": {
+                    "increasing": {
+                        "iTerm": "default",
+                        "numberOfCommands": "default",
+                        "lastInput": "default"
+                    },
+                    "decreasing": {
+                        "iTerm": "default",
+                        "numberOfCommands": "default",
+                        "lastInput": "default"
+                    }
+                }
             }
             appSettings(dict) : settings to run thermostat app
             {
@@ -46,20 +67,30 @@ class Thermal_0_0_1:
             }
 
         """
-        self.appSettings = appSettings
-        self.actionSettings = actionSettings
+        if state == None:
+            state = self.defaultState
+        self.configInterface = ConfigInterface(appConfig)
+        self.appSettings = self.configInterface.appSettings
+        self.actionSettings = self.configInterface.actionSettings
         self.state = state
-        self.configInterface = ConfigInterface(appSettings, actionSettings)
-        self.observation = Observation()
+        self.observation = Observation(self.state)
         self.cycleStartExpression = self.configInterface.expressions[
             "cycleStartExpression"]
         self.cycleEndExpression = self.configInterface.expressions[
             "cycleEndExpression"]
         self.newOffsetExpression = self.configInterface.expressions[
             "newOffsetExpression"]
-        self.maxIterations = appSettings["timeToAchieve"] // actionSettings[
-            "sampleTime"]
-        self.control = Control(self.configInterface, actionSettings)
+        self.maxIterations = self.appSettings[
+            "timeToAchieve"] // self.actionSettings["sampleTime"]
+        self.control = Control(self.configInterface, self.actionSettings)
+        if self.state["offset"] == "default":
+            self.state["offset"] = self.appSettings["maxOffset"]
+
+    def make_default_curve_state(self):
+        for curve in self.control.curves:
+            self.state["curve"][curve.name]["iTerm"] = "default"
+            self.state["curve"][curve.name]["numberOfCommands"] = "default"
+            self.state["curve"][curve.name]["lastInput"] = "default"
 
     def set_setpoint(self, update=False):
         if update == True:
@@ -67,7 +98,8 @@ class Thermal_0_0_1:
         self.state["currentIterations"] = 0
         self.state["timerCrossed"] = 0
         for curveName, curve in self.control.curves.items():
-            curve.init_computing()
+            self.update_default_curve_state()
+            curve.init_computing(self.appSettings, self.state)
 
     def set_output(self, level):
         controlValuesAtDiffLevels = {
@@ -129,38 +161,35 @@ class Thermal_0_0_1:
 
     def save_last_output_in_decreasing_curve(self, control, curve, output):
         if curve.name == "increasing":
-            self.control.curves["decreasing"].computingEngine.iTerm = output
+            self.state["decreasing"]["iTerm"] = output
 
     def execute(self, observation):
         temperature = observation["temp"]
         ahuStatus = observation["ahuStatus"]
-        while 1:
-            curve = None
-            observationCode, temperature = \
-                self.observation.verify_observation(temperature, ahuStatus)
-            self.handle_cycle_trigger(observationCode, temperature)
-            if observationCode == -2:
-                self.set_setpoint()
-            elif observationCode == 0:
-                self.state["cycle"] = 0
-                self.output = self.set_output("minimum")
-                return
-            elif observationCode == -1:
-                self.state["cycle"] = 0
-                self.output = self.output("emergency")
-                return
-            elif observationCode == 1:
-                if self.state["cycle"] == 1 and not self.state["timerCrossed"]:
-                    self.state["currentIterations"] += 1
-                    curve = self.control.which_curve_right_now(
-                        temperature, self.state["setpoint"],
-                        self.state["offset"])
-                    output = curve.output(temperature, self.state["setpoint"],
-                                          self.state["offset"])
-                    self.save_last_output_in_decreasing_curve(
-                        self.control, curve, output)
-                    output = round(self.control.map_to_real_value(output))
-                if curve:
-                    self.automate_offset(curve.name, temperature)
+
+        curve = None
+        observationCode, temperature = \
+            self.observation.verify_observation(temperature, ahuStatus)
+        self.handle_cycle_trigger(observationCode, temperature)
+        if observationCode == -2:
+            self.set_setpoint()
+        elif observationCode == 0:
+            self.state["cycle"] = 0
+            self.output = self.set_output("minimum")
+        elif observationCode == -1:
+            self.state["cycle"] = 0
+            self.output = self.output("emergency")
+        elif observationCode == 1:
+            if self.state["cycle"] == 1 and not self.state["timerCrossed"]:
+                self.state["currentIterations"] += 1
+                curve = self.control.which_curve_right_now(
+                    temperature, self.state["setpoint"], self.state["offset"])
+                output = curve.output(temperature, self.state["setpoint"],
+                                      self.state["offset"])
+                self.save_last_output_in_decreasing_curve(
+                    self.control, curve, output)
+                output = round(self.control.map_to_real_value(output))
                 self.output = output
-                return
+            if curve:
+                self.automate_offset(curve.name, temperature)
+        return self.output, self.state

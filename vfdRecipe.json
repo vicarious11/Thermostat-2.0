@@ -1,29 +1,23 @@
 {
   "recipeInfo": {
-    "appType": "thermal_1_0_0",
-      "appSettings": {
-      "setpoint" : 25,
+    "maxLogsNeeded": "1",
+    "appType": "thermal",
+    "appSettings": {
+      "setpoint": 25,
       "minOffset": 0.25,
       "maxOffset": 0.5,
       "timeToAchieve": 0.9,
-      "appMode": "cooling",
+      "appMode": "cooling"
     },
-    "maxLogsNeeded": "1",
     "failsafe": "{}",
     "everyMinuteTopics": [
       "db/ssh_12/status/1"
     ],
     "runOn": "2701",
     "topics": [
-      "db/1232/kva/1",
-      "db/1222/tmp/1",
-      "db/1223/tmp/1",
-      "db/1224/tmp/1"
+      "db/ssh_12/status/1"
     ],
-    "recipe": {
-      "ahuStatus": "1232.kva > 0.3",
-      "temperature": "(1222.tmp + 1223.tmp + 1224.tmp)/3"
-    },
+    "recipe": "ssh_12.status.1 > 199000",
     "syncAsyncAction": "True",
     "dependentOnOthers": [
       "ssh_12"
@@ -34,33 +28,18 @@
     "switchOff": "0",
     "actionAlert": [
       {
-        "title": "actuator",
-        "emergencyPosition": 75,
-        "minimumPosition": 10,
-        "minModulation": 60,
-        "maxModulation": 85,
-        "modulationSpeed": 2,
-        "sampleTime": 0.05,
+        "title": "No title",
         "type": "action",
+        "name": "vfd",
+        "emergencyPosition": 40,
+        "minimumPosition": 25,
+        "minModulation": 60,
+        "maxModulation": 100,
+        "modulationSpeed": 4,
+        "sampleTime": 3,
         "priority": 0,
         "uniqId": "f431161dc6f598402a7135a44967d4f3",
         "did": "3122",
-        "command": "changesetpoint",
-        "value": "evaluate",
-        "delay": 0
-      },
-      {
-        "title": "vfd",
-        "emergencyPosition": 80,
-        "minimumPosition": 10,
-        "minModulation": 50,
-        "maxModulation": 100,
-        "modulationSpeed": 5,
-        "sampleTime": 0.05,
-        "type": "action",
-        "priority": 0,
-        "uniqId": "f431161dc6f598402a7135a44967d4f3",
-        "did": "3123",
         "command": "changesetpoint",
         "value": "evaluate",
         "delay": 0

@@ -1,12 +1,17 @@
 class ABController():
-    def __init__(self, controlSettings, appSettings):
+    degreeOfFreedom = 5
+
+    def __init__(self, controlSettings, appSettings, state):
+        self.state = state
         self.maxModulation = controlSettings['maxModulation']
         self.minModulation = controlSettings['minModulation']
         self.modulationSpeed = controlSettings['modulationSpeed']
-        self.timeToAchieveSetpoint = appSettings['timeToAchieveSetpoint']
-        self.degreeOfFreedom = appSettings['degreeOfFreedom']
+        self.timeToAchieveSetpoint = appSettings['timeToAchieve']
         self.setpoint = appSettings['setpoint']
-        self.controllerDirection = appSettings['controllerDirection']
+        if appSettings["appMode"] == "cooling":
+            self.controllerDirection = 1
+        elif appSettings["appMode"] == "heating":
+            self.controllerDirection = -1
         self.sampleTime = controlSettings['sampleTime']
 
         self.lastInput = 0
@@ -24,7 +29,8 @@ class ABController():
             self.numberOfCommands = self.numberOfCommands - 1
             return self.maxModulation
 
-        reactiveTerm = self.calculate_reactive_constant() * self.controllerDirection
+        reactiveTerm = self.calculate_reactive_constant(
+        ) * self.controllerDirection
 
         self.iTerm += reactiveTerm * error
 
@@ -53,6 +59,7 @@ class ABController():
             self.output = self.minModulation
 
     def user_command_resolution(self):
-        resolution = ((self.maxModulation - self.minModulation) / self.degreeOfFreedom)
+        resolution = ((self.maxModulation - self.minModulation) /
+                      self.degreeOfFreedom)
         commandResolution = resolution * self.modulationSpeed + self.minModulation
         return commandResolution

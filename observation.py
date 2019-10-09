@@ -1,35 +1,21 @@
 class Observation:
-    def __init__(self, interface, observationSettings):
-        self.observationSettings = observationSettings
-        self.transportInterface = interface["transport"]
-        self.configInterface = interface["config"]
-        self.temperatureSource = self.observationSettings["temperature"][
-            "formula"]
-        self.ahuObservationSource = self.observationSettings["ahu"][
-            "stateExpression"]
-        self.ahuStatus = None
-        self.previousAhuStatus = None
-        self.temperature = None
+    def __init__(self, state):
+        self.state = state
 
-    def get_verify_observation(self):
-        self.ahuStatus = self.transportInterface.get_observation(
-            self.ahuObservationSource)
-        self.temperature = self.transportInterface.get_observation(
-            self.temperatureSource)
-
+    def verify_observation(self, ahuStatus, temperature):
         # : ahuStatus from false to true
-        if self.previousAhuStatus == False and self.ahuStatus == True:
+        if self.state["previousAhuStatus"] == 0 and ahuStatus == True:
             observationCode = -2
 
         # : minimum position
-        elif self.ahuStatus == False:
+        elif ahuStatus == False:
             observationCode = 0
 
         # : emergency position
-        elif (self.ahuStatus is None) or (self.temperature is None):
+        elif (ahuStatus is None) or (temperature is None):
             observationCode = -1
         else:
             observationCode = 1
 
-        self.previousAhuStatus = self.ahuStatus
-        return observationCode, self.temperature
+        self.state["previousAhuStatus"] = int(ahuStatus)
+        return observationCode, temperature
