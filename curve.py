@@ -2,7 +2,8 @@ from ab import ABController
 
 
 class Curve:
-    def __init__(self, name, configInterface, curveConfig, actionSettings):
+    def __init__(self, name, configInterface, curveConfig, actionSettings,
+                 state):
         """Constructor.
 
         Args:
@@ -23,17 +24,17 @@ class Curve:
                 "continueExpr" : "<<expression>>"
             }
         """
-        self.name = curveConfig["name"]
+        self.name = name
+        self.state = state
         self.configInterface = configInterface
-        self.triggered = False
         self.endOfComputation = None
         self.triggerExpression = curveConfig["triggerExpr"]
         self.continueExpression = curveConfig["continueExpr"]
         self.actionSettings = actionSettings
 
-    def init_computing(self, appSettings, state):
+    def init_computing(self, appSettings):
         self.computingEngine = ABController(self.actionSettings, appSettings,
-                                            state["curve"][self.name])
+                                            self.state["curve"][self.name])
 
     def output(self, observation):
         return self.computingEngine.compute(observation)

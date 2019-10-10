@@ -4,7 +4,7 @@ from curve import Curve
 
 
 class Control:
-    def __init__(self, configInterface, actionSettings):
+    def __init__(self, configInterface, actionSettings, state):
         """Constructor.
 
         Args:
@@ -20,36 +20,38 @@ class Control:
             }
         """
         self.name = actionSettings["name"]
+        self.state = state
         self.configInterface = configInterface
         self.minimumPosition = actionSettings["minimumPosition"]
         self.emergency = actionSettings["emergencyPosition"]
         self.minModulation = actionSettings["minModulation"]
         self.maxModulation = actionSettings["maxModulation"]
         self.modulationSpeed = actionSettings["modulationSpeed"]
-        self.percentToRealExpression = self.configInterface.expressions(
-            "%torealvalue")
+        self.percentToRealExpression = self.configInterface.expressions[
+            "%torealvalue"]
         self.sampleTime = actionSettings["sampleTime"]
         self.curves = self._init_curves(actionSettings)
 
     def _init_curves(self, actionSettings):
         curvesConfig = self.configInterface.get_curves(self.name)
         return [
-            Curve(name, self.configInterface, curvesConfig, actionSettings)
+            Curve(name, self.configInterface, curvesConfig[name],
+                  actionSettings, self.state)
             for name, curveConfig in curvesConfig.items()
         ]
 
     def which_curve_right_now(self, observation, setpoint, offset):
         # : curve expressions should not clash
         for curve in self.curves:
-            if curve.triggered:
+            if self.state["curve"][curve.name]["triggered"]:
                 if curve.continueExpression == "None":
                     return curve
                 elif eval(curve.continueExpression):
                     return curve
                 else:
-                    curve.triggered = False
+                    self.state["curve"][curve.name]["triggered"] = 0
             elif eval(curve.triggerExpression):
-                curve.triggered = True
+                self.state["curve"][curve.name]["triggered"] = 1
                 return curve
         return None
 
