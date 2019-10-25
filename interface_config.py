@@ -25,20 +25,21 @@ class ConfigInterface:
 
     def parse_app_settings(self):
         appSettings = {}
-        appSettings["appType"] = self.frontendConfig["recipeInfo"]["appType"]
-        for key, value in self.frontendConfig["recipeInfo"][
-                "appSettings"].items():
+        for key, value in self.frontendConfig["appSettings"].items():
             appSettings[key] = value
         return appSettings
 
     def parse_action_settings(self):
-        return self.frontendConfig["recipeInfo"]["actionAlert"][0]
+        return self.frontendConfig["controlSettings"]
 
     def parse_expressions(self):
+        observationExpressions = self.frontendConfig["dataExpression"]
         expressions = copy.deepcopy(self.controlsDriver[self.appMode])
         del expressions["controls"]
         expressions["%torealvalue"] = self.controlsDriver[
             self.appMode]["controls"][self.actionName]["%torealvalue"]
+        expressions["temperature"] = observationExpressions["temp"]
+        expressions["ahuStatus"] = observationExpressions["ahuStatus"]
         return expressions
 
     def read_json_file(cls, filePath):

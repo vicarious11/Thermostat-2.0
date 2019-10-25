@@ -26,7 +26,7 @@ class Thermal_0_0_1:
         }
     }
 
-    def __init__(self, appConfig, state=None):
+    def __init__(self, thermalConfig, state=None):
         """
         Args:
             state(dict) : previous state
@@ -71,7 +71,9 @@ class Thermal_0_0_1:
         """
         if state == None:
             state = self.defaultState
-        self.configInterface = ConfigInterface(appConfig)
+        self.configInterface = ConfigInterface(
+            thermalConfig["appSettings"], thermalConfig["controlSettings"],
+            thermalConfig["dataExpression"])
         self.appSettings = self.configInterface.appSettings
         self.actionSettings = self.configInterface.actionSettings
         self.state = state
@@ -168,9 +170,26 @@ class Thermal_0_0_1:
         if curve.name == "increasing":
             self.state["curve"]["decreasing"]["iTerm"] = output
 
-    def execute(self, observation):
-        temperature = observation["temp"]
-        ahuStatus = observation["ahuStatus"]
+    def calculate_observation(self, data):
+        temp = self.configInterface.expressions["temperature"]
+        ahuStatus = self.configInterface.expressions["ahuStatus"]
+        for key in data["keystore"]:
+            value = data["keystore"][key][0]
+            key = key[:-2]
+            temp = temp.replace(key, str(value))
+            ahuStatus = ahuStatus.replace(key, str(value))
+        try:
+            temp = eval(temp)
+        except NameError:
+            temp = None
+        try:
+            ahuStatus = eval(ahuStatus)
+        except NameError:
+            ahuStatus = None
+        eval(temp), eval(ahuStatus)
+
+    def execute(self, data):
+        temperature, ahuStatus = self.calculate_observation(data)
         curve = None
         observationCode, temperature = \
             self.observation.verify_observation(ahuStatus, temperature)
